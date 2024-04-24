@@ -44,6 +44,7 @@ class AddFragment : Fragment() {
          binding?.btnAdd?.setOnClickListener {
              if(isValidation()){
                  viewModel.addSplitWiseData(getData())
+                 Toast.makeText(context, "Sucess", Toast.LENGTH_SHORT).show()
              }
          }
     }

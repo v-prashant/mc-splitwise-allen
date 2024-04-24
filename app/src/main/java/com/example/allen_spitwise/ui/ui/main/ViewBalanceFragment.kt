@@ -7,13 +7,14 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.example.allen_spitwise.R
+import androidx.lifecycle.ViewModelProvider
 import com.example.allen_spitwise.databinding.FragmentViewBalanceBinding
 
 
 class ViewBalanceFragment : Fragment() {
 
     private var binding: FragmentViewBalanceBinding? = null
+    lateinit var viewModel: SplitWiseViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,19 +25,29 @@ class ViewBalanceFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentViewBalanceBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(requireActivity()).get(SplitWiseViewModel::class.java)
         return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        observeData()
+    }
 
-        for(i in 0..5){
-            addNameLayout()
-            addBalanceLayout()
+    private fun observeData() {
+        viewModel.getAllExpenses().observe(requireActivity()){
+            val filterData = viewModel.filterData(data = it)
+
+            binding?.containerName?.removeAllViews()
+            binding?.containerBalance?.removeAllViews()
+            filterData.forEach {
+                addNameLayout(it.key)
+                addBalanceLayout(it.value)
+            }
         }
     }
 
-    private fun addNameLayout() {
+    private fun addNameLayout(name: String) {
         val layoutParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -45,12 +56,12 @@ class ViewBalanceFragment : Fragment() {
 
         val nameView = TextView(requireContext()).apply {
             this.layoutParams = layoutParams
-            text = "Prashant"
+            text = name
         }
         binding!!.containerName.addView(nameView)
     }
 
-    private fun addBalanceLayout() {
+    private fun addBalanceLayout(balance: Int) {
         val layoutParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -59,7 +70,7 @@ class ViewBalanceFragment : Fragment() {
 
         val balanceView = TextView(requireContext()).apply {
             this.layoutParams = layoutParams
-            text = "500"
+            text = balance.toString()
         }
         binding!!.containerBalance.addView(balanceView)
     }
